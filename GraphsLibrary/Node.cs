@@ -16,7 +16,7 @@ namespace GraphsLibrary
         {
             Value = value;
             PointingTo = new List<Edge<T>>();
-            Node<T> Parent = new Node<T>();
+            //Node<T> Parent = new Node<T>();
             DistanceFromStart = 0;
         }
 

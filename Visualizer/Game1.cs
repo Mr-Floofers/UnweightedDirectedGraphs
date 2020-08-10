@@ -12,9 +12,11 @@ namespace Visualizer
     /// </summary>
     public class Game1 : Game
     {
+        private const int screenWidth = 900;
+        private const int screenHeight = 900;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Dictionary<Node<Vector2>, Color> Nodes;
+        Dictionary<VisualizerNode, Color> Nodes;
         UnweightedDirectedGraph<Vector2> graph;
         Vector2 GridSize;
         public Game1()
@@ -31,10 +33,18 @@ namespace Visualizer
         /// </summary>
         protected override void Initialize()
         {
+            graphics.PreferredBackBufferWidth = screenWidth;
+            graphics.PreferredBackBufferHeight = screenHeight;
+            graphics.ApplyChanges();
             // TODO: Add your initialization logic here
-            Nodes = new Dictionary<Node<Vector2>, Color>();
+            graph = new UnweightedDirectedGraph<Vector2>();
+            Nodes = new Dictionary<VisualizerNode, Color>();
             GridSize = new Vector2(20, 20);
             InitNodes(GridSize);
+            IsMouseVisible = true;
+
+     
+
             base.Initialize();
         }
 
@@ -46,6 +56,12 @@ namespace Visualizer
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            Rectangle node = new Rectangle(0, 0, (Window.ClientBounds.Size.X / (int)gridSize.X) - 1, (Window.ClientBounds.Size.Y / (int)gridSize.Y) - 1);
+            Color[] blankColorData = new Color[] { Color.White };
+
+            Texture2D pixel = new Texture2D(GraphicsDevice, 1, 1);
+            pixel.SetData(blankColorData);
 
             // TODO: use this.Content to load your game content here
         }
@@ -70,6 +86,16 @@ namespace Visualizer
                 Exit();
 
             // TODO: Add your update logic here
+            var mouseState = Mouse.GetState();
+
+            foreach (var nodeKvp in Nodes)
+            {
+                if (nodeKvp.Key.MouseClicked(mouseState, GridSize, new Vector2(screenWidth, screenHeight)))
+                {
+                    
+                    // do something
+                }
+            }
 
             base.Update(gameTime);
         }
@@ -90,7 +116,7 @@ namespace Visualizer
 
         void InitNodes(Vector2 gridSize)
         {
-            Dictionary<(int X, int Y), Node<Vector2>> nodes = new Dictionary<(int, int), Node<Vector2>>();
+            Dictionary<(int X, int Y), VisualizerNode> nodes = new Dictionary<(int, int), VisualizerNode>();
 
             for (int i = 0; i < gridSize.X; i++)
             {
@@ -99,7 +125,7 @@ namespace Visualizer
                     Node<Vector2> currentNode;
                     if (!nodes.ContainsKey((i, j)))
                     {
-                        nodes.Add((i, j), new Node<Vector2>(new Vector2(i, j)));
+                        nodes.Add((i, j), new VisualizerNode(new Vector2(i, j)));
                         
                     }
 
@@ -107,17 +133,20 @@ namespace Visualizer
                     graph.AddNode(currentNode.Value);
 
                      
-                    Node<Vector2> currentNeighbor;
+                    VisualizerNode currentNeighbor;
+                    Vector2 neighborPosition = Vector2.Zero;
 
                     for (int y = (int)(currentNode.Value.Y-1); y < (int)(currentNode.Value.Y + 2); y++)
                     {
                         for (int x = (int)(currentNode.Value.X - 1); x < (int)(currentNode.Value.X + 2); x++)
                         {
-                            if(new Vector2(x, y) != currentNode.Value && y >= 0 && y < gridSize.Y && x >= 0 && x < gridSize.X)
+                            neighborPosition.X = x;
+                            neighborPosition.Y = y;
+                            if(neighborPosition != currentNode.Value && y >= 0 && y < gridSize.Y && x >= 0 && x < gridSize.X)
                             {
                                 if(!nodes.ContainsKey((x, y)))
                                 {
-                                    nodes.Add((x, y), new Node<Vector2>(new Vector2(x, y)));
+                                    nodes.Add((x, y), new VisualizerNode(neighborPosition));
                                 }
                                 currentNeighbor = nodes[(x, y)];
 
@@ -135,24 +164,20 @@ namespace Visualizer
             }
         }
 
-        void DrawNodes(Vector2 gridSize)
+        void DrawNodes(Vector2 gridSize, Rectangle nodeRect, Texture2D pixel)
         {
-            Rectangle node = new Rectangle(0, 0, Window.ClientBounds.X/(int)gridSize.X, Window.ClientBounds.Y / (int)gridSize.Y);
-            Color[] blankColorData = new Color[node.Width * node.Height];
-            Texture2D nodeTexture = new Texture2D(GraphicsDevice, node.Width, node.Height);
+            
+            VisualizerNode currentNode;
 
-            for (int i = 0; i < blankColorData.Length; ++i)
-            {
-                blankColorData[i] = Color.White;
-            }
-
-            nodeTexture.SetData(blankColorData);
 
             for (int x = 0; x < gridSize.X; x++)
             {
                 for (int y = 0; y < gridSize.Y; y++)
                 {
-                    spriteBatch.Draw(nodeTexture, positionHelper(gridSize, node, new Vector2(x, y)), Nodes[getNodeHelper(new Vector2(x, y))]);
+                    currentNode = getNodeHelper(new Vector2(x, y));
+                    //spriteBatch.Draw(pixel, positionHelper(gridSize, new Vector2(x, y)), Nodes[getNodeHelper(new Vector2(x, y))]);
+                    spriteBatch.Draw(pixel, positionHelper(gridSize, new Vector2(x, y)), node, Nodes[currentNode]);
+                    currentNode.HitBox = node;
                 }
             }
 
@@ -170,12 +195,12 @@ namespace Visualizer
             //spriteBatch.Draw(rectTexture, new Vector2(100, 100), Color.Red);
         }
 
-        Vector2 positionHelper(Vector2 gridSize, Rectangle rect, Vector2 postion)
+        Vector2 positionHelper(Vector2 gridSize, Vector2 postion)
         {
-            return new Vector2(postion.X*(Window.ClientBounds.X / (int)gridSize.X), postion.Y*(Window.ClientBounds.Y / (int)gridSize.Y));
+            return new Vector2(postion.X*(Window.ClientBounds.Size.X / (int)gridSize.X), postion.Y*(Window.ClientBounds.Size.Y / (int)gridSize.Y));
         }
 
-        Node<Vector2> getNodeHelper(Vector2 position)
+        VisualizerNode getNodeHelper(Vector2 position)
         {
             return Nodes.Where(kvp => kvp.Key.Value == position).First().Key;
             //foreach(var kvp in Nodes)
@@ -186,6 +211,17 @@ namespace Visualizer
             //    }
             //}
             //return null;
+        }
+
+        public bool MouseClicked<T>(KeyValuePair<Node<Vector2>, Color> keyValuePair, MouseState state)
+        {
+            Rectangle hitbox;
+
+            if (hitbox.Contains(state.Position) && state.LeftButton == ButtonState.Pressed)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
