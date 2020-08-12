@@ -72,9 +72,9 @@ namespace GraphsLibrary
             return path;
         }
 
-        //public void AStar(Node<T> fromNode, Node<T> toNode)
-        //{
-
-        //}
+        public void AStar(Node<T> fromNode, Node<T> toNode)
+        {
+             
+        }
     }
 }
