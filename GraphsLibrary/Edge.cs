@@ -8,9 +8,9 @@ namespace GraphsLibrary
     {
         public Node<T> FromNode;
         public Node<T> ToNode;
-        public int Weight;
+        public float Weight;
 
-        public Edge(Node<T> fromNode, Node<T> toNode, int weight)
+        public Edge(Node<T> fromNode, Node<T> toNode, float weight)
         {
             FromNode = fromNode;
             ToNode = toNode;

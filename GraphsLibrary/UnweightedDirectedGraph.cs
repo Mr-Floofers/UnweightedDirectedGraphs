@@ -26,7 +26,16 @@ namespace GraphsLibrary
             Nodes.Add(new Node<T>(value));
         }
 
-        public bool AddEdge(T FromValue, T ToValue, int Weight)
+        public void AddNode(Node<T> node)
+        {
+            if(Search(node.Value) != null)
+            {
+                return;
+            }
+            Nodes.Add(node);
+        }
+
+        public bool AddEdge(T FromValue, T ToValue, float Weight)
         {
             Node<T> FromNode = Search(FromValue);
             Node<T> ToNode = Search(ToValue);
@@ -305,8 +314,8 @@ namespace GraphsLibrary
             List<Node<T>> depthFirstPath = DepthFirst(fromNode, toNode);
             List<Node<T>> breadthFirstPath = breadthFirst(fromNode, toNode);
 
-            int depthDistance = 0;
-            int breadthDistance = 0;
+            float depthDistance = 0;
+            float breadthDistance = 0;
 
             for (int i = 0; i < depthFirstPath.Count - 1; i++)
             {

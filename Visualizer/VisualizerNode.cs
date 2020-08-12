@@ -8,9 +8,10 @@ using Microsoft.Xna.Framework;
 
 namespace Visualizer
 {
-    class VisualizerNode : Node<Vector2>
+    public class VisualizerNode : Node<Vector2>
     {
         public Rectangle HitBox;
+        public Color Color;
 
         public VisualizerNode(Vector2 pos) : base(pos)
         {

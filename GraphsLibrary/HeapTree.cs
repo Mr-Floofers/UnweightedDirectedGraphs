@@ -148,7 +148,7 @@ namespace GraphsLibrary
 
         public bool Contains(T value)
         {
-            for(int i = 0; i < data.Length; i++)
+            for(int i = 0; i < Count; i++)
             {
                 if(comparer.Compare(data[i], value) == 0)
                 {

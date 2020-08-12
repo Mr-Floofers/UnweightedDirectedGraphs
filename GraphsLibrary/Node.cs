@@ -11,7 +11,7 @@ namespace GraphsLibrary
         public List<Edge<T>> PointingTo;
         public bool Visited;
         public Node<T> Parent;
-        public int DistanceFromStart;
+        public float DistanceFromStart;
         public Node(T value = default)
         {
             Value = value;

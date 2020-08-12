@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GraphsLibrary
 {
-    class Pathfinding<T> where T : IComparer<T>
+    public class Pathfinding<T> //where T : IComparer<T>
     {
         UnweightedDirectedGraph<T> graph;
         public Pathfinding(UnweightedDirectedGraph<T> Graph)
@@ -34,13 +34,13 @@ namespace GraphsLibrary
                 currentNode = queue.Pop();
                 currentNode.Visited = true;
 
-                int neighborDistance;
+                float neighborDistance;
 
                 foreach (var edge in currentNode.PointingTo)
                 {
                     Node<T> neighbor = edge.ToNode;
                     neighborDistance = edge.Weight + currentNode.DistanceFromStart;
-                    if(neighborDistance < neighbor.DistanceFromStart)
+                    if(neighborDistance.CompareTo(neighbor.DistanceFromStart) < 0)
                     {
                         neighbor.Parent = currentNode; 
                         neighbor.DistanceFromStart = neighborDistance;
@@ -61,7 +61,7 @@ namespace GraphsLibrary
             //path time
 
             Stack<Node<T>> path = new Stack<Node<T>>();
-            currentNode = graph.Nodes.Where(node => node == toNode).First();
+            currentNode = toNode;
 
             while(currentNode.Parent != null)
             {
@@ -69,16 +69,12 @@ namespace GraphsLibrary
 
                 currentNode = currentNode.Parent;
             }
-            if(path.Count <= 1)
-            {
-                return null;
-            }
             return path;
         }
 
-        public void AStar(Node<T> fromNode, Node<T> toNode)
-        {
+        //public void AStar(Node<T> fromNode, Node<T> toNode)
+        //{
 
-        }
+        //}
     }
 }
