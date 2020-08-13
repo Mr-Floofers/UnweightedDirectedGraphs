@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using GraphsLibrary;
 using System.Linq;
+using System;
 
 namespace Visualizer
 {
@@ -26,8 +27,10 @@ namespace Visualizer
         int count;
         MouseState oldMouseState;
         Pathfinding<Vector2> pathfinder;
-
-
+        TimeSpan timeSpan;
+        bool done;
+        Queue<Node<Vector2>> visitedNodes;
+        Stack<Node<Vector2>> path;
 
         public Game1()
         {
@@ -59,6 +62,8 @@ namespace Visualizer
             count = 0;
             oldMouseState = Mouse.GetState();
             pathfinder = new Pathfinding<Vector2>(graph);
+            done = false;
+            timeSpan = new TimeSpan(0);
             base.Initialize();
         }
 
@@ -99,6 +104,8 @@ namespace Visualizer
 
             // TODO: Add your update logic here
             var mouseState = Mouse.GetState();
+            var keyboardState = Keyboard.GetState();
+            timeSpan += gameTime.ElapsedGameTime;
 
             //Nodes.Keys.Select(k => Nodes[k] = Color.Red);
 
@@ -109,15 +116,22 @@ namespace Visualizer
             //Nodes[76].Color = Color.Brown;
 
 
+            if(done && timeSpan.TotalMilliseconds >= 10 && visitedNodes.Count >0)
+            {
+                timeSpan = new TimeSpan(0);
+                ((VisualizerNode)visitedNodes.Dequeue()).Color = Color.LightBlue;
+            }
+
             //Nodes.Select(p => p.Value = Color.Red);
             foreach (var node in Nodes)
             {
                 //ChangeNodeColor(nodeKvp, Color.Red);
                 //node.Color = Color.Red;
-                if(node.Visited)
-                {
-                    node.Color = Color.LightBlue;
-                }
+
+                //if(node.Visited)
+                //{
+                //    node.Color = Color.LightBlue;
+                //}
                 if (MouseSingleClick(node, mouseState, oldMouseState))
                 {
                     //node.Color = Color.Red;
@@ -135,21 +149,43 @@ namespace Visualizer
                     }
                     // do something
                 }
+                if(MouseClicked(node, mouseState) && count>1 && node != startNode && node != endNode)
+                {
+                    node.Color = Color.DarkGray;
+                    graph.Remove(node);
+                }
             }
 
-            if (startNode != null && endNode != null)
+            if(startNode != null && endNode != null && keyboardState.IsKeyDown(Keys.Enter))
             {
-                var path = pathfinder.Dijkstras(startNode, endNode);
-                var tempEndNode = endNode;
-                while (path.Count > 0)
+                (path, visitedNodes) = pathfinder.Dijkstras(startNode, endNode);
+                done = true;
+            }
+
+            if (done && visitedNodes.Count <= 0)
+            {
+                foreach(var node in path)
                 {
-                    var node = (VisualizerNode)path.Pop();
-                    node.Color = Color.DarkBlue;
+                    ((VisualizerNode)node).Color = Color.DarkBlue;
                 }
+                //while (path.Count > 0)
+                //{
+                //    var node = (VisualizerNode)path.Pop();
+                //    node.Color = Color.DarkBlue;
+                //}
+                //startNode.Color = Color.Red;
+                //endNode.Color = Color.Green;
+                
+            }
+
+            if (startNode != null)
+            {
                 startNode.Color = Color.Red;
+            }
+            if(endNode != null)
+            {
                 endNode.Color = Color.Green;
             }
-
 
             oldMouseState = mouseState;
             base.Update(gameTime);
@@ -309,5 +345,7 @@ namespace Visualizer
             }
             return false;
         }
+
+        
     }
 }

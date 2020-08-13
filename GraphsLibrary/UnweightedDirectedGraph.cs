@@ -47,6 +47,27 @@ namespace GraphsLibrary
             return false;
         }
 
+        public bool Remove(Node<T> removeNode)
+        {
+            if (removeNode == null)
+            {
+                return false;
+            }
+
+            foreach (var node in Nodes)
+            {
+                if (TryGetEdges(node, removeNode, out List<Edge<T>> edges))
+                {
+                    foreach (var edge in edges)
+                    {
+                        RemoveEdge(edge);
+                    }
+                }
+            }
+            Nodes.Remove(removeNode);
+            return true;
+        }
+
         public bool Remove(T value)
         {
             Node<T> removeNode = Search(value);

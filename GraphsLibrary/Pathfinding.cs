@@ -14,10 +14,11 @@ namespace GraphsLibrary
         {
             graph = Graph;            
         }
-        public Stack<Node<T>> Dijkstras(Node<T> fromNode, Node<T> toNode)
+        public (Stack<Node<T>>, Queue<Node<T>>) Dijkstras(Node<T> fromNode, Node<T> toNode)
         {
             //Dictionary<Node<T>, (Node<T> parent, int distance)> info = new Dictionary<Node<T>, (Node<T> parent, int distance)>();
             HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => x.DistanceFromStart.CompareTo(y.DistanceFromStart)));
+            Queue<Node<T>> visitedNodes = new Queue<Node<T>>();
 
             foreach(var node in graph.Nodes)
             {
@@ -35,6 +36,7 @@ namespace GraphsLibrary
             {
                 currentNode = queue.Pop();
                 currentNode.Visited = true;
+                visitedNodes.Enqueue(currentNode);
 
                 float neighborDistance;
 
@@ -71,7 +73,7 @@ namespace GraphsLibrary
 
                 currentNode = currentNode.Parent;
             }
-            return path;
+            return (path, visitedNodes);
         }
 
         public void AStar(Node<T> fromNode, Node<T> toNode, Func<Node<T>, Node<T>, float> heuristicFunc = null)
