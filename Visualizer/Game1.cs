@@ -116,7 +116,7 @@ namespace Visualizer
             //Nodes[76].Color = Color.Brown;
 
 
-            if(done && timeSpan.TotalMilliseconds >= 10 && visitedNodes.Count >0)
+            if (done && timeSpan.TotalMilliseconds >= 20 && visitedNodes.Count > 0)
             {
                 timeSpan = new TimeSpan(0);
                 ((VisualizerNode)visitedNodes.Dequeue()).Color = Color.LightBlue;
@@ -149,22 +149,22 @@ namespace Visualizer
                     }
                     // do something
                 }
-                if(MouseClicked(node, mouseState) && count>1 && node != startNode && node != endNode)
+                if (MouseClicked(node, mouseState) && count > 1 && node != startNode && node != endNode)
                 {
                     node.Color = Color.DarkGray;
-                    graph.Remove(node);
+                    WallHelper(node);
                 }
             }
 
-            if(startNode != null && endNode != null && keyboardState.IsKeyDown(Keys.Enter))
+            if (startNode != null && endNode != null && keyboardState.IsKeyDown(Keys.Enter))
             {
-                (path, visitedNodes) = pathfinder.Dijkstras(startNode, endNode);
+                (path, visitedNodes) = pathfinder.AStar(startNode, endNode, Pathfinding<Vector2>.Manhattan);
                 done = true;
             }
 
             if (done && visitedNodes.Count <= 0)
             {
-                foreach(var node in path)
+                foreach (var node in path)
                 {
                     ((VisualizerNode)node).Color = Color.DarkBlue;
                 }
@@ -175,14 +175,14 @@ namespace Visualizer
                 //}
                 //startNode.Color = Color.Red;
                 //endNode.Color = Color.Green;
-                
+
             }
 
             if (startNode != null)
             {
                 startNode.Color = Color.Red;
             }
-            if(endNode != null)
+            if (endNode != null)
             {
                 endNode.Color = Color.Green;
             }
@@ -225,7 +225,7 @@ namespace Visualizer
 
                     VisualizerNode currentNeighbor;
                     Vector2 neighborPosition = Vector2.Zero;
-                    
+
 
                     for (int y = (int)(currentNode.Value.Y - 1); y < (int)(currentNode.Value.Y + 2); y++)
                     {
@@ -346,6 +346,29 @@ namespace Visualizer
             return false;
         }
 
-        
+        public void WallHelper(VisualizerNode wallNode)
+        {
+            if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1)))
+            {
+                //otherWall = Nodes.Find(node => node.Value == new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1));
+                graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y - 1)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y))));
+                graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X-1, wallNode.Value.Y)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y-1))));
+            }
+            if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y - 1)))
+            {
+
+            }
+            if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y + 1)))
+            {
+
+            }
+            if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y + 1)))
+            {
+
+            }
+            graph.Remove(wallNode);
+        }
+
+
     }
 }

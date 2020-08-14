@@ -132,6 +132,10 @@ namespace GraphsLibrary
             }
             return null;
         }
+
+        public bool Contains(Node<T> node) => Nodes.Contains(node);
+        public bool Contains(T value) => Search(value) != null;
+
         /// <summary>
         /// First, cheack start node
         /// Next, have a visited list made of nodes and a stack to hold your nodes

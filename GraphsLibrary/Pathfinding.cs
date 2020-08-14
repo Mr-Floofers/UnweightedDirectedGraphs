@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace GraphsLibrary
 {
@@ -76,13 +77,10 @@ namespace GraphsLibrary
             return (path, visitedNodes);
         }
 
-        public void AStar(Node<T> fromNode, Node<T> toNode, Func<Node<T>, Node<T>, float> heuristicFunc = null)
-        {
-            if (heuristicFunc is null)
-            {
-                heuristicFunc = Manhattan;
-            }
-            HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => x.DistanceToEnd.CompareTo(y.DistanceToEnd)));
+        public (Stack<Node<T>>, Queue<Node<T>>) AStar(Node<T> fromNode, Node<T> toNode, Func<Node<T>, Node<T>, float> heuristicFunc)
+        {            
+            HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => (x.DistanceToEnd+x.DistanceFromStart).CompareTo(y.DistanceToEnd+y.DistanceFromStart)));
+            Queue<Node<T>> visitedNodes = new Queue<Node<T>>();
 
             foreach (var node in graph.Nodes)
             {
@@ -102,6 +100,7 @@ namespace GraphsLibrary
             {
                 currentNode = queue.Pop();
                 currentNode.Visited = true;
+                visitedNodes.Enqueue(currentNode);
 
                 float neighborDistance;
 
@@ -114,7 +113,7 @@ namespace GraphsLibrary
                         neighbor.Parent = currentNode;
                         neighbor.DistanceFromStart = neighborDistance;
                         neighbor.Visited = false;
-                        neighbor.DistanceToEnd = heuristicFunc(neighbor, toNode);
+                        neighbor.DistanceToEnd = heuristicFunc(neighbor, toNode);//heuristicFunc(currentNode, neighbor)
                     }
 
                     if (neighbor.Visited == false)
@@ -127,16 +126,29 @@ namespace GraphsLibrary
                     break;
                 }
             }
+
+            //path time
+
+            Stack<Node<T>> path = new Stack<Node<T>>();
+            currentNode = toNode;
+
+            while (currentNode.Parent != null)
+            {
+                path.Push(currentNode);
+
+                currentNode = currentNode.Parent;
+            }
+            return (path, visitedNodes);
         }
 
 
         //heuristics
-        public float Manhattan(Node<T> fromNode, Node<T> endNode)
+        public static float Manhattan(Node<Vector2> fromNode, Node<Vector2> endNode)
         {
-            var disX = Math.Abs(fromNode.Position.X - endNode.Position.X);
-            var disY = Math.Abs(fromNode.Position.Y - endNode.Position.Y);
+            var disX = Math.Abs(fromNode.Value.X - endNode.Value.X);
+            var disY = Math.Abs(fromNode.Value.Y - endNode.Value.Y);
 
-            return disX + disY;
+            return (disX + disY);
         }
     }
 }

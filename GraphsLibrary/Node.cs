@@ -15,7 +15,7 @@ namespace GraphsLibrary
         public Node<T> Parent;
         public float DistanceFromStart;
         public float DistanceToEnd;
-        public Vector2 Position;
+        
         public Node(T value = default)
         {
             Value = value;
@@ -23,7 +23,6 @@ namespace GraphsLibrary
             //Node<T> Parent = new Node<T>();
             DistanceFromStart = 0;
             DistanceToEnd = float.MaxValue;
-            Position = Vector2.Zero;
         }
 
         public override string ToString()
