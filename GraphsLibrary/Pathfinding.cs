@@ -13,7 +13,7 @@ namespace GraphsLibrary
         //delegate float Heuristics(Node<T> first, Node<T> second);
         public Pathfinding(UnweightedDirectedGraph<T> Graph)
         {
-            graph = Graph;            
+            graph = Graph;
         }
         public (Stack<Node<T>>, Queue<Node<T>>) Dijkstras(Node<T> fromNode, Node<T> toNode)
         {
@@ -21,7 +21,7 @@ namespace GraphsLibrary
             HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => x.DistanceFromStart.CompareTo(y.DistanceFromStart)));
             Queue<Node<T>> visitedNodes = new Queue<Node<T>>();
 
-            foreach(var node in graph.Nodes)
+            foreach (var node in graph.Nodes)
             {
                 node.Visited = false;
                 node.Parent = null;
@@ -33,7 +33,7 @@ namespace GraphsLibrary
 
             Node<T> currentNode;
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 currentNode = queue.Pop();
                 currentNode.Visited = true;
@@ -45,19 +45,19 @@ namespace GraphsLibrary
                 {
                     Node<T> neighbor = edge.ToNode;
                     neighborDistance = edge.Weight + currentNode.DistanceFromStart;
-                    if(neighborDistance.CompareTo(neighbor.DistanceFromStart) < 0)
+                    if (neighborDistance.CompareTo(neighbor.DistanceFromStart) < 0)
                     {
-                        neighbor.Parent = currentNode; 
+                        neighbor.Parent = currentNode;
                         neighbor.DistanceFromStart = neighborDistance;
                         neighbor.Visited = false;
                     }
 
-                    if(neighbor.Visited == false)
+                    if (neighbor.Visited == false)
                     {
                         queue.Insert(neighbor);
                     }
                 }
-                if(currentNode == toNode)
+                if (currentNode == toNode)
                 {
                     break;
                 }
@@ -68,7 +68,7 @@ namespace GraphsLibrary
             Stack<Node<T>> path = new Stack<Node<T>>();
             currentNode = toNode;
 
-            while(currentNode.Parent != null)
+            while (currentNode.Parent != null)
             {
                 path.Push(currentNode);
 
@@ -78,8 +78,8 @@ namespace GraphsLibrary
         }
 
         public (Stack<Node<T>>, Queue<Node<T>>) AStar(Node<T> fromNode, Node<T> toNode, Func<Node<T>, Node<T>, float> heuristicFunc)
-        {            
-            HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => (x.DistanceToEnd+x.DistanceFromStart).CompareTo(y.DistanceToEnd+y.DistanceFromStart)));
+        {
+            HeapTree<Node<T>> queue = new HeapTree<Node<T>>(Comparer<Node<T>>.Create((x, y) => (x.DistanceToEnd + x.DistanceFromStart).CompareTo(y.DistanceToEnd + y.DistanceFromStart)));
             Queue<Node<T>> visitedNodes = new Queue<Node<T>>();
 
             foreach (var node in graph.Nodes)
@@ -149,6 +149,61 @@ namespace GraphsLibrary
             var disY = Math.Abs(fromNode.Value.Y - endNode.Value.Y);
 
             return (disX + disY);
+        }
+
+        public bool BellmanFord(Node<T> fromNode, Node<T> toNode)
+        {
+            Queue<Node<T>> queue = new Queue<Node<T>>();
+
+            foreach (var node in graph.Nodes)
+            {
+                queue.Enqueue(node);
+            }
+
+            fromNode.DistanceFromStart = 0;
+
+            Node<T> currentNode;
+
+            while (queue.Count > 0)
+            {
+                currentNode = queue.Dequeue();
+
+                foreach (var node in graph.Nodes)
+                {
+                    node.Parent = null;
+                    node.DistanceFromStart = float.PositiveInfinity;
+                }
+
+                currentNode.DistanceFromStart = 0;
+
+                float neighborDistance;
+
+                foreach (var node in graph.Nodes)
+                {
+                    foreach (var edge in node.PointingTo)
+                    {
+                        neighborDistance = edge.Weight + node.DistanceFromStart;
+                        if (neighborDistance < edge.ToNode.DistanceFromStart)
+                        {
+                            edge.ToNode.Parent = node;
+                            edge.ToNode.DistanceFromStart = neighborDistance;
+                        }
+                    }
+                }
+                foreach (var node in graph.Nodes)
+                {
+                    foreach (var edge in node.PointingTo)
+                    {
+                        var endNode = edge.ToNode;
+                        if (float.IsInfinity(endNode.DistanceFromStart) && node.DistanceFromStart > endNode.DistanceFromStart)
+                        {
+                            //add the stuff for pathfinding, basicly diksrats but no negative
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

@@ -348,24 +348,24 @@ namespace Visualizer
 
         public void WallHelper(VisualizerNode wallNode)
         {
-            if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1)))
-            {
-                //otherWall = Nodes.Find(node => node.Value == new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1));
-                graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y - 1)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y))));
-                graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X-1, wallNode.Value.Y)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y-1))));
-            }
-            if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y - 1)))
-            {
+            //if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1)))
+            //{
+            //    //otherWall = Nodes.Find(node => node.Value == new Vector2(wallNode.Value.X - 1, wallNode.Value.Y - 1));
+            //    graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y - 1)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y))));
+            //    graph.RemoveEdge(graph.Search(new Vector2(wallNode.Value.X-1, wallNode.Value.Y)).PointingTo.Find(edge => edge.ToNode == graph.Search(new Vector2(wallNode.Value.X, wallNode.Value.Y-1))));
+            //}
+            //if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y - 1)))
+            //{
 
-            }
-            if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y + 1)))
-            {
+            //}
+            //if (!graph.Contains(new Vector2(wallNode.Value.X + 1, wallNode.Value.Y + 1)))
+            //{
 
-            }
-            if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y + 1)))
-            {
+            //}
+            //if (!graph.Contains(new Vector2(wallNode.Value.X - 1, wallNode.Value.Y + 1)))
+            //{
 
-            }
+            //}
             graph.Remove(wallNode);
         }
 
